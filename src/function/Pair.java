@@ -17,6 +17,14 @@ public class Pair<K,V> {
         return value;
     }
 
+    public void setKey(K key) {
+        this.key = key;
+    }
+
+    public void setValue(V value) {
+        this.value = value;
+    }
+
     public static Pair<String,String> getPair(String condition) {
         String[] conditions = condition.substring(1, condition.length() - 1).split(",");
 

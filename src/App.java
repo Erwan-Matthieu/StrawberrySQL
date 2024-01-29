@@ -2,16 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import function.ExtractParentheses;
 import function.Pair;
 
 import table.ColumnDefinition;
 import table.Row;
 import table.TableDefinition;
-
+import test.TestRhino;
 import treatement.TableGenerator;
 import treatement.CartesianProduct;
 import treatement.CreateTable;
 import treatement.Division;
+import treatement.FromParenthesis;
 import treatement.InsertRow;
 import treatement.NaturalJoin;
 
@@ -446,23 +448,49 @@ public class App {
         
                                 List<Pair<String,String>> conditionList = new ArrayList<>();
         
-                                if (condition.startsWith("(") && condition.endsWith(")")) {
+                                if (condition.startsWith("[") && condition.endsWith("]")) {
                                     String[] splitConditions = null;
         
-        
                                     String newRowWithoutSpace = condition.replace(" ", "");
-        
-                                    if (newRowWithoutSpace.contains("),")) {
-                                        splitConditions = newRowWithoutSpace.split("\\),");
-        
+
+                                    if (newRowWithoutSpace.contains("],")) {
+                                        splitConditions = newRowWithoutSpace.split("\\],");
+
                                         for (String splitString : splitConditions) {
-                                            if (!splitString.endsWith(")")) {
-                                                splitString += ")";
+                                            if (splitString.contains("(") && splitString.contains(")")) {
+                                                String operand = ExtractParentheses.extractParentheses(splitString);
+                                                double result = TestRhino.evaluate(operand);
+                                                if (ExtractParentheses.isInteger(result)) {
+                                                    splitString = splitString.replace(operand, String.valueOf((int)result));
+                                                    splitString = splitString.replace("(", "").replace(")", "");
+                                                } else {
+                                                    splitString = splitString.replace(operand, String.valueOf(result));
+                                                    splitString = splitString.replace("(", "").replace(")", "");
+                                                    System.out.println(splitString);
+                                                }
+                                            }
+                                            if (!splitString.endsWith("]")) {
+                                                splitString += "]";
                                             }
         
                                             conditionList.add(Pair.getPair(splitString));
                                         }
                                     } else {
+                                        if (newRowWithoutSpace.contains("(") && newRowWithoutSpace.contains(")")) {
+                                            String operand = ExtractParentheses.extractParentheses(newRowWithoutSpace);
+                                            double result = TestRhino.evaluate(operand);
+                                            if (ExtractParentheses.isInteger(result)) {
+                                                newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf((int)result));
+                                            } else {
+                                                newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf(result));
+                                            }
+                                            newRowWithoutSpace = newRowWithoutSpace.replace("(", "").replace(")", "");
+                                            if (ExtractParentheses.isInteger(result)) {
+                                                newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf((int)result));
+                                            } else {
+                                                newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf(result));
+                                            }
+                                        }
                                         conditionList.add(Pair.getPair(newRowWithoutSpace));
                                     }
                                 }
@@ -491,8 +519,115 @@ public class App {
                             }
                         }
     
+                    } else if (tableName.startsWith("(") && tableName.endsWith(")")) {
+                        String[] fromParenthese = tableName.substring(1, tableName.length() - 1).split(",");
+
+                        if (fromParenthese.length == 2) {
+                            if (fromParenthese[0].contains("*")) {
+                                String[] cartesianTable = fromParenthese[0].split("\\*");
+                                
+                                if (cartesianTable[0].equals(cartesianTable[1])) {
+                                    System.out.println("Les deux tables possède le même nom donc il n'est pas possible d'effectuer le produit cartésien");
+                                } else if (!(TableDefinition.exist(cartesianTable[0]) && TableDefinition.exist(cartesianTable[1])) || !(TableDefinition.exist(cartesianTable[0]) || TableDefinition.exist(cartesianTable[1]))) {
+                                    if (!TableDefinition.exist(cartesianTable[0]) && !TableDefinition.exist(cartesianTable[1])) {
+                                        System.out.println("Ni la relation " + cartesianTable[0] + " ni la relation " + cartesianTable[1] + " n'existent");
+                                    } else if (!TableDefinition.exist(cartesianTable[0])) {
+                                        System.out.println("La relation " + cartesianTable[0] + " n'existe pas");
+                                    } else if (!TableDefinition.exist(cartesianTable[1])) {
+                                        System.out.println("La relation " + cartesianTable[1] + " n'existe pas");
+                                    }
+                                } else {
+                                    FromParenthesis.cartesianTable(cartesianTable, fromParenthese[1]);
+        
+                                    shouldExit5 = true;
+                                }
+                            } else if (fromParenthese[0].contains(">")) {
+                                String[] joinTable = fromParenthese[0].split("\\>");
+
+                                if (joinTable[0].equals(joinTable[1])) {
+                                    System.out.println("Les deux tables possède le même nom donc il n'est pas possible d'effectuer le produit cartésien");
+                                } else if (!(TableDefinition.exist(joinTable[0]) && TableDefinition.exist(joinTable[1])) || !(TableDefinition.exist(joinTable[0]) || TableDefinition.exist(joinTable[1]))) {
+                                    if (!TableDefinition.exist(joinTable[0]) && !TableDefinition.exist(joinTable[1])) {
+                                        System.out.println("Ni la relation " + joinTable[0] + " ni la relation " + joinTable[1] + " n'existent");
+                                    } else if (!TableDefinition.exist(joinTable[0])) {
+                                        System.out.println("La relation " + joinTable[0] + " n'existe pas");
+                                    } else if (!TableDefinition.exist(joinTable[1])) {
+                                        System.out.println("La relation " + joinTable[1] + " n'existe pas");
+                                    }
+                                } else {
+                                    String joinTable4 = FromParenthesis.joinTable(joinTable, fromParenthese[1]);
+
+                                    new TableDefinition(joinTable4);
+
+                                    System.out.print("#Predicat => Veuillez choisir vos conditions : ");
+                                    String condition = scanner.nextLine();
+                                    condition.toLowerCase();
+                                    
+                                    List<Pair<String,String>> conditionList = new ArrayList<>();
+                                    
+                                    if (condition.startsWith("[") && condition.endsWith("]")) {
+                                        String[] splitConditions = null;
+                                    
+                                        String newRowWithoutSpace = condition.replace(" ", "");
+
+                                        if (newRowWithoutSpace.contains("],")) {
+                                            splitConditions = newRowWithoutSpace.split("\\],");
+
+                                            for (String splitString : splitConditions) {
+                                                if (splitString.contains("(") && splitString.contains(")")) {
+                                                    String operand = ExtractParentheses.extractParentheses(splitString);
+                                                    double result = TestRhino.evaluate(operand);
+                                                    if (ExtractParentheses.isInteger(result)) {
+                                                        splitString = splitString.replace(operand, String.valueOf((int)result));
+                                                        splitString = splitString.replace("(", "").replace(")", "");
+                                                    } else {
+                                                        splitString = splitString.replace(operand, String.valueOf(result));
+                                                        splitString = splitString.replace("(", "").replace(")", "");
+                                                        System.out.println(splitString);
+                                                    }
+                                                }
+                                                if (!splitString.endsWith("]")) {
+                                                    splitString += "]";
+                                                }
+                                            
+                                                conditionList.add(Pair.getPair(splitString));
+                                            }
+                                        } else {
+                                            if (newRowWithoutSpace.contains("(") && newRowWithoutSpace.contains(")")) {
+                                                String operand = ExtractParentheses.extractParentheses(newRowWithoutSpace);
+                                                double result = TestRhino.evaluate(operand);
+                                                if (ExtractParentheses.isInteger(result)) {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf((int)result));
+                                                } else {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf(result));
+                                                }
+                                                newRowWithoutSpace = newRowWithoutSpace.replace("(", "").replace(")", "");
+                                                if (ExtractParentheses.isInteger(result)) {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf((int)result));
+                                                } else {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf(result));
+                                                }
+                                            }
+                                            conditionList.add(Pair.getPair(newRowWithoutSpace));
+                                        }
+                                    }
+                                
+                                    System.out.println(TableGenerator.generateTable(TableDefinition.getHeaderList(), Row.getRowWithCondition(conditionList)));
+
+                                    CreateTable createTable = new CreateTable(joinTable4);
+                                    createTable.suppressTempTable();
+        
+                                    shouldExit5 = true;
+                                }
+
+                            }
+                        } else if (fromParenthese.length > 2) {
+                            System.out.println("Une erreur de syntaxe est survenue. Il y a " + fromParenthese.length + " arguments au lieu de 2 arguments.");
+                        } else if (fromParenthese.length < 2) {
+                            System.out.println("Une erreur de syntaxe est survenue. Il manque " + (2 - fromParenthese.length) + " argument.");
+                        } 
                     } else {
-                        System.out.println("La relation " + tableName + " n'existe pas");
+                        System.out.println("La relation \"" + tableName + "\" n'existe pas");
                     }
 
                     if (shouldExit5) {

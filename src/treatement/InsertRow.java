@@ -3,6 +3,7 @@ package treatement;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -102,5 +103,48 @@ public class InsertRow {
         }
 
         return check;
+    }
+
+    public static void insertValueInTempTable(List<String> values){
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+            
+            String relativePath = "src\\output\\data" + File.separator + tableName + ".json";
+
+            String absolutePath = System.getProperty("user.dir") + File.separator + relativePath;
+
+            File filePath = new File(absolutePath);
+
+            ObjectNode root = objectMapper.readValue(filePath, ObjectNode.class);
+
+            ArrayNode myValArrayNode = (ArrayNode) root.get(tableName);
+
+            ObjectNode firstRow = (ObjectNode) myValArrayNode.get(0);
+            
+            ObjectNode newRow = objectMapper.createObjectNode();
+
+            if (values.size() == firstRow.size()) {
+                int columnIndex = 0;
+
+                Iterator<String> fieldNAmes = firstRow.fieldNames();
+
+                while (fieldNAmes.hasNext()) {
+                    String fieldName = fieldNAmes.next();
+
+                    newRow.put(fieldName, values.get(columnIndex));
+
+                    columnIndex++;
+                }
+            }
+
+            myValArrayNode.add(newRow);
+
+            objectMapper.writeValue(filePath, root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

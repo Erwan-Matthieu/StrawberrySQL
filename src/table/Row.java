@@ -132,8 +132,42 @@ public class Row {
                 for (int i = 1; i < getNumberofRows() + 1; i++) {
                     ObjectNode currRow = (ObjectNode) myValArrayNode.get(i);
 
-                    if (currRow.get(pairCondition.getKey()).asText().equals(pairCondition.getValue())) {
-                        rowConfirmed.add(i);
+                    if (pairCondition.getValue().contains(">=")) {
+                        System.out.println(pairCondition.getValue());
+                        int valueTemp = Integer.valueOf(pairCondition.getValue().replace(">=", ""));
+
+                        if (Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString()) >= valueTemp) {
+                            rowConfirmed.add(i);
+                        }
+                    } else if (pairCondition.getValue().contains(">")) {
+                        int valueTemp = Integer.valueOf(pairCondition.getValue().replace(">", ""));
+
+                        if (Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString()) > valueTemp) {
+                            rowConfirmed.add(i);
+                        }
+                    } else if (pairCondition.getValue().contains("<=")) {
+                        int valueTemp = Integer.valueOf(pairCondition.getValue().replace("<=", ""));
+
+                        if (Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString()) <= valueTemp) {
+                            rowConfirmed.add(i);
+                        }
+                    } else if (pairCondition.getValue().contains("<")) {
+                        int valueTemp = Integer.valueOf(pairCondition.getValue().replace("<", ""));
+
+                        if (Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString()) < valueTemp) {
+                            rowConfirmed.add(i);
+                        }
+                    } else if (pairCondition.getValue().contains("=")) {
+                        int valueTemp = Integer.valueOf(pairCondition.getValue().replace("=", ""));
+
+                        if (Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString()) == valueTemp) {
+                            rowConfirmed.add(i);
+                        }
+                    } else {
+                        String condition = pairCondition.getValue();
+                        if (currRow.get(pairCondition.getKey()).asText().toString().contains(condition)) {
+                            rowConfirmed.add(i);
+                        }
                     }
                 }
             }
