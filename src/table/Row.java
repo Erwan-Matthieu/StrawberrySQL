@@ -132,8 +132,88 @@ public class Row {
                 for (int i = 1; i < getNumberofRows() + 1; i++) {
                     ObjectNode currRow = (ObjectNode) myValArrayNode.get(i);
 
-                    if (pairCondition.getValue().contains(">=")) {
-                        System.out.println(pairCondition.getValue());
+                    if (pairCondition.getValue().contains("=><=")) {
+                        String[] values = pairCondition.getValue().split("=><=");
+
+                        if (values.length != 2) {
+                            System.out.println("Veuillez verifier vos valeus insérées.");
+                        } else {
+                            int value1 = Integer.valueOf(values[0]),
+                                value2 = Integer.valueOf(values[1]),
+                                rowValue = Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString());
+
+                            if (value1 > value2) {
+                                int tempValue = value2;
+                                value2 = value1;
+                                value1 = tempValue;
+                            }
+
+                            if (rowValue >= value1 && rowValue <= value2) {
+                                rowConfirmed.add(i);
+                            }
+                        }
+                        
+                    } else if (pairCondition.getValue().contains("=><")) {
+                        String[] values = pairCondition.getValue().split("=><");
+
+                        if (values.length != 2) {
+                            System.out.println("Veuillez verifier vos valeus insérées.");
+                        } else {
+                            int value1 = Integer.valueOf(values[0]),
+                                value2 = Integer.valueOf(values[1]),
+                                rowValue = Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString());
+
+                            if (value1 > value2) {
+                                int tempValue = value2;
+                                value2 = value1;
+                                value1 = tempValue;
+                            }
+
+                            if (rowValue >= value1 && rowValue < value2) {
+                                rowConfirmed.add(i);
+                            }
+                        }
+                    } else if (pairCondition.getValue().contains("><=")) {
+                        String[] values = pairCondition.getValue().split("><=");
+
+                        if (values.length != 2) {
+                            System.out.println("Veuillez verifier vos valeus insérées.");
+                        } else {
+                            int value1 = Integer.valueOf(values[0]),
+                                value2 = Integer.valueOf(values[1]),
+                                rowValue = Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString());
+
+                            if (value1 > value2) {
+                                int tempValue = value2;
+                                value2 = value1;
+                                value1 = tempValue;
+                            }
+
+                            if (rowValue > value1 && rowValue <= value2) {
+                                rowConfirmed.add(i);
+                            }
+                        }
+                    } else if (pairCondition.getValue().contains("><")) {
+                        String[] values = pairCondition.getValue().split("><");
+
+                        if (values.length != 2) {
+                            System.out.println("Veuillez verifier vos valeus insérées.");
+                        } else {
+                            int value1 = Integer.valueOf(values[0]),
+                                value2 = Integer.valueOf(values[1]),
+                                rowValue = Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString());
+
+                            if (value1 > value2) {
+                                int tempValue = value2;
+                                value2 = value1;
+                                value1 = tempValue;
+                            }
+
+                            if (rowValue > value1 && rowValue < value2) {
+                                rowConfirmed.add(i);
+                            }
+                        }
+                    } else if (pairCondition.getValue().contains(">=")) {
                         int valueTemp = Integer.valueOf(pairCondition.getValue().replace(">=", ""));
 
                         if (Integer.valueOf(currRow.get(pairCondition.getKey()).asText().toString()) >= valueTemp) {

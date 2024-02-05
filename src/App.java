@@ -537,8 +537,78 @@ public class App {
                                         System.out.println("La relation " + cartesianTable[1] + " n'existe pas");
                                     }
                                 } else {
-                                    FromParenthesis.cartesianTable(cartesianTable, fromParenthese[1]);
+                                    String cartesianTable4 = FromParenthesis.cartesianTable(cartesianTable, fromParenthese[1]);
         
+                                    new TableDefinition(cartesianTable4);
+
+                                    System.out.print("#Predicat => Veuillez choisir vos conditions : ");
+                                    String condition = scanner.nextLine();
+                                    condition.toLowerCase();
+                                    
+                                    List<Pair<String,String>> conditionList = new ArrayList<>();
+                                    
+                                    if (condition.startsWith("[") && condition.endsWith("]")) {
+                                        String[] splitConditions = null;
+                                    
+                                        String newRowWithoutSpace = condition.replace(" ", "");
+
+                                        if (newRowWithoutSpace.contains("],")) {
+                                            splitConditions = newRowWithoutSpace.split("\\],");
+
+                                            for (String splitString : splitConditions) {
+                                                if (splitString.contains("(") && splitString.contains(")")) {
+                                                    String operand = ExtractParentheses.extractParentheses(splitString);
+                                                    double result = TestRhino.evaluate(operand);
+                                                    if (ExtractParentheses.isInteger(result)) {
+                                                        splitString = splitString.replace(operand, String.valueOf((int)result));
+                                                        splitString = splitString.replace("(", "").replace(")", "");
+                                                    } else {
+                                                        splitString = splitString.replace(operand, String.valueOf(result));
+                                                        splitString = splitString.replace("(", "").replace(")", "");
+                                                        System.out.println(splitString);
+                                                    }
+                                                }
+                                                if (!splitString.endsWith("]")) {
+                                                    splitString += "]";
+                                                }
+                                            
+                                                conditionList.add(Pair.getPair(splitString));
+                                            }
+                                        } else {
+                                            if (newRowWithoutSpace.contains("(") && newRowWithoutSpace.contains(")")) {
+                                                String operand = ExtractParentheses.extractParentheses(newRowWithoutSpace);
+                                                double result = TestRhino.evaluate(operand);
+                                                if (ExtractParentheses.isInteger(result)) {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf((int)result));
+                                                } else {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf(result));
+                                                }
+                                                newRowWithoutSpace = newRowWithoutSpace.replace("(", "").replace(")", "");
+                                                if (ExtractParentheses.isInteger(result)) {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf((int)result));
+                                                } else {
+                                                    newRowWithoutSpace = newRowWithoutSpace.replace(operand, String.valueOf(result));
+                                                }
+                                            }
+                                            conditionList.add(Pair.getPair(newRowWithoutSpace));
+                                        }
+                                    }
+
+                                    new Row(cartesianTable4);
+                                
+                                    System.out.println(TableGenerator.generateTable(TableDefinition.getHeaderList(), Row.getRowWithCondition(conditionList)));
+
+                                    int i = Row.getRowWithCondition(conditionList).size();
+        
+                                    if (i < 1) {
+                                        System.out.println(i + " élément selectionnné");
+                                    } else {
+                                        System.out.println(i + " éléments sélectionnés");
+                                    }
+
+                                    CreateTable createTable = new CreateTable(cartesianTable4);
+                                    createTable.suppressTempTable();
+
                                     shouldExit5 = true;
                                 }
                             } else if (fromParenthese[0].contains(">")) {
@@ -611,8 +681,18 @@ public class App {
                                             conditionList.add(Pair.getPair(newRowWithoutSpace));
                                         }
                                     }
+
+                                    new Row(joinTable4);
                                 
                                     System.out.println(TableGenerator.generateTable(TableDefinition.getHeaderList(), Row.getRowWithCondition(conditionList)));
+
+                                    int i = Row.getRowWithCondition(conditionList).size();
+        
+                                    if (i < 1) {
+                                        System.out.println(i + " élément selectionnné");
+                                    } else {
+                                        System.out.println(i + " éléments sélectionnés");
+                                    }
 
                                     CreateTable createTable = new CreateTable(joinTable4);
                                     createTable.suppressTempTable();
@@ -625,7 +705,9 @@ public class App {
                             System.out.println("Une erreur de syntaxe est survenue. Il y a " + fromParenthese.length + " arguments au lieu de 2 arguments.");
                         } else if (fromParenthese.length < 2) {
                             System.out.println("Une erreur de syntaxe est survenue. Il manque " + (2 - fromParenthese.length) + " argument.");
-                        } 
+                        } else {
+                            System.out.println("Une erreur de syntaxe est survenue, veuillez recommencer");
+                        }
                     } else {
                         System.out.println("La relation \"" + tableName + "\" n'existe pas");
                     }
@@ -732,7 +814,7 @@ public class App {
                             shouldExit7 = true;
                         }
                     } else if (action.startsWith("|") && action.endsWith("|")) {
-                        String[] tables = action.substring(1, action.length() - 1).split("\\|\\*\\|");
+                        String[] tables = action.substring(1, action.length() - 1).split("\\|\\>\\|");
 
                         if (tables[0].equals(tables[1])) {
                             System.out.println("Les noms des deux (2) tables sont identiques");
@@ -752,7 +834,7 @@ public class App {
                             shouldExit7 = true;
                         }
                     } else if (action.toUpperCase().equals("I")) {
-                        System.out.println("Voici la syntaxe pour insérer le nom des deux (2) tables : |nomtable1|*|nomtable2|");
+                        System.out.println("Voici la syntaxe pour insérer le nom des deux (2) tables : |nomtable1|>|nomtable2|");
                     } else {
                         System.out.println("La syntaxe insérée n'est pas valide");
                         System.out.println("Veuillez insérer F pour voir la syntaxe à insérée");

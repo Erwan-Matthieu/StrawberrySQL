@@ -1,19 +1,19 @@
 {
   "table2" : [ {
-    "C" : "string",
-    "D" : "string",
-    "E" : "string"
+    "A" : "integer",
+    "B" : "string",
+    "D" : "string"
   }, {
-    "C" : "abre",
-    "D" : "b",
-    "E" : "a"
+    "A" : 1,
+    "B" : "a",
+    "D" : "d"
   }, {
-    "C" : "azaer",
-    "D" : "b",
-    "E" : "c"
+    "A" : 2,
+    "B" : "c",
+    "D" : "b"
   }, {
-    "C" : "b",
-    "D" : "a",
-    "E" : "a"
+    "A" : 4,
+    "B" : "a",
+    "D" : "a"
   } ]
 }
